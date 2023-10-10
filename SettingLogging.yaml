@@ -1,0 +1,33 @@
+version: 1
+
+formatters:
+  simple:
+    format: "%(asctime)s -- %(levelname)s -- %(funcName)s -- %(message)s"
+  extended:
+    format: "%(asctime)s -- %(name)s::%(levelname)s -- %(funcName)s::%(pathname)s -- %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+
+  file_handler:
+    class: logging.FileHandler
+    level: DEBUG
+    filename: logs.log
+    formatter: extended
+
+loggers:
+  DEV:
+    handlers: [console, file_handler]
+    propagate: false
+  TEST:
+    handlers: [file_handler]
+    propagate: false
+  PROD:
+    handlers: [console, file_handler]
+    propagate: false
+root:
+  handlers: [file_handler]
+  

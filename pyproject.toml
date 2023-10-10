@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "signlanguagetranslation"
+version = "0.1.0"
+description = "Description of the project"
+authors = ["Juan <rodriguezjuan001@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.10.12"
+matplotlib = "^3.8.0"
+seaborn = "^0.13.0"
+plotly = "^5.17.0"
+pandas = "^2.1.1"
+numpy = "^1.26.0"
+dask = "^2023.9.3"
+scikit-learn = "^1.3.1"
+scipy = "^1.11.3"
+dvc = "^3.25.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
