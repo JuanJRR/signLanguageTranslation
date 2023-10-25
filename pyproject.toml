@@ -16,7 +16,18 @@ dask = "^2023.9.3"
 scikit-learn = "^1.3.1"
 scipy = "^1.11.3"
 dvc = "^3.25.0"
+python-dotenv = "^1.0.0"
+ipykernel = "^6.25.2"
+torch = {version = "^2.1.0+cpu", source = "pyTorchCPU"}
+torchvision = {version = "^0.16.0+cpu", source = "pyTorchCPU"}
+torchaudio = {version = "^2.1.0+cpu", source = "pyTorchCPU"}
+opencv-python = "^4.8.1.78"
 
+
+[[tool.poetry.source]]
+name = "pyTorchCPU"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]

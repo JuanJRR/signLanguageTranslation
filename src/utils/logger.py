@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import os
 
 import yaml
 
@@ -11,18 +12,14 @@ class Logger:
     :rtype: logging.Logger
     """
 
-    def __init__(self, level_Log: str, setting_log: str) -> None:
-        """Initialization
+    def __init__(self) -> None:
+        """Initialization"""
 
-        :param level_Log: Logger level. DEV for development, TEST for evaluation, PROD for production
-        :type level_Log: str
-        :param setting_log: Location of logging.yaml configuration file
-        :type setting_log: str
-        """
+        self.setting_log = str(os.getenv("setting_logging"))
+        # self.setting_log = "../signLanguageTranslation/SettingLogging.yaml"
+        self.level = os.getenv("level_Logging")
 
-        self.level = level_Log
-
-        with open(setting_log, "r") as f:
+        with open(self.setting_log, "r") as f:
             self.log_cfg = yaml.safe_load(f.read())
 
     def config_logging(self) -> logging.Logger:
