@@ -1,3 +1,5 @@
+import math
+
 import cv2
 
 from utils.logger import Logger
@@ -23,8 +25,24 @@ class VideoHandling:
         logger = Logger()
         self.log = logger.config_logging()
 
-        dim_width = int((pixels / aspect_ratio[1]) * aspect_ratio[0])
-        dim_high = int((pixels / aspect_ratio[1]) * aspect_ratio[1])
+        dim_width = 0
+        dim_high = 0
+        if aspect_ratio == [16, 9]:
+            dim_width = int(pixels * 2)
+            dim_high = int(pixels)
+
+        # dim_width = math.floor((pixels / aspect_ratio[1]) * aspect_ratio[0])
+        # if dim_width % 2 == 0:
+        #     dim_width = dim_width
+        # else:
+        #     dim_width = dim_width + 1
+
+        # dim_high = math.floor((pixels / aspect_ratio[1]) * aspect_ratio[1])
+        # if dim_high % 2 == 0:
+        #     dim_high = dim_high
+        # else:
+        #     dim_high = dim_high + 1
+
         self.dim = (dim_width, dim_high)
 
         if color == "GRAY":

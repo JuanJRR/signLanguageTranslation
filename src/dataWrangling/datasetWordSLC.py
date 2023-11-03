@@ -1,7 +1,9 @@
 import os
 
 import numpy as np
+import torch
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 from data.dataListGenc import DataListGeneratorClassifier
 from etl.videoResampledDataIncrement import VideoResampledDataIncrement
@@ -38,6 +40,9 @@ class DatasetWordSLC(Dataset):
             video_length=self.video_units
         )
 
+        # transforms
+        self.trans = transforms.Compose([transforms.ToTensor()])
+
         # upload information
         self.items_dir = items_dir
         self.size_list = size_list
@@ -72,6 +77,8 @@ class DatasetWordSLC(Dataset):
         frames = self.video.upload_video(filename=path_item)
 
         new_frames = self.video_resampled.videoResampled(frames=frames)
+        new_frames = np.transpose(new_frames, (1, 2, 0))
+        new_frames = self.trans(new_frames)
 
         del path_item, frames
 
@@ -79,4 +86,4 @@ class DatasetWordSLC(Dataset):
         self.log.info("Data built and delivered")
 
         # return {"VIDEO": new_frames, "LABEL": self.label_file[idx]}
-        return np.array(new_frames), str(self.label_file[idx])
+        return new_frames, str(self.label_file[idx])

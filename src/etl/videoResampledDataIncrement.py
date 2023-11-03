@@ -20,7 +20,7 @@ class VideoResampledDataIncrement:
 
         self.log.info("Built video resample data increment")
 
-    def videoResampled(self, frames: list) -> list:
+    def videoResampled(self, frames: list) -> np.ndarray:
         """It allows you to take a list of phrases and obtain a new list of frames of defined length.
         The new list of frames is obtained by subdividing the total length of the original list into
         the n required length and taking a sample using a uniform distribution.
@@ -28,7 +28,7 @@ class VideoResampledDataIncrement:
         :param frames: List containing the frames of a video
         :type frames: list
         :return: New list made up of a sample of the original frames.
-        :rtype: list
+        :rtype: np.ndarray
         """
         self.log.debug("Starting video resample ...")
 
@@ -50,4 +50,4 @@ class VideoResampledDataIncrement:
         self.log.debug("Finished resample video")
         self.log.info("Resampling video completed")
 
-        return new_frames
+        return np.array(new_frames)
