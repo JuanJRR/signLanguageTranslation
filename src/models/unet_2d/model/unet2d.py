@@ -37,7 +37,7 @@ class Unet2D(nn.Module):
             in_channels=channels, out_channels=frames, kernel_size=1, stride=1
         )
 
-    def forward(self, x):
+    def forward(self, x) -> tuple:
         # input
         x_input = self.input(x)
 

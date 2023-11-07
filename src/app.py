@@ -8,8 +8,9 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from dataWrangling.datasetWordSLC import DatasetWordSLC
-from models.unet_2d.unet2d import Unet2D
-from models.unet_2d.upConv2d import UpConv2D
+from models.unet_2d.model.unet2d import Unet2D
+from models.unet_2d.optimisers.optimUnet2dSGD import OptimUnet2dSGD
+from models.unet_2d.train.estimate_reasonable_lr import EstimateReasonableLr
 from utils.logger import Logger
 
 if __name__ == "__main__":
@@ -21,8 +22,8 @@ if __name__ == "__main__":
     log = logger.config_logging()
 
     # Execution App
-    log.info("Star App ...")
-    log.info("Loading settings ...")
+    log.critical("Star App ...")
+    log.warning("Loading settings ...")
 
     # Environment Variables
     log.info("Settings:Environment Variables")
@@ -40,7 +41,21 @@ if __name__ == "__main__":
         log.info("Random seed")
 
     # Execution App
-    log.info("Starting main program loop ...")
+    log.warning("Starting main program loop ...")
+
+    # aa = torch.randn(32, 1, 128, 256)
+    # print(aa.shape)
+    # a_max_0 = torch.argmax(aa, dim=1)
+    # print(a_max_0.shape)
+
+    # bb = torch.randn(2, 30, 128, 256)
+    # acc = (a_max_0 == aa).sum()
+    # print(acc)
+    # a_max_1 = torch.argmax(aa, dim=1)
+    # print(aa[0], aa[1])
+    # print(a_max_0, a_max_1)
+
+    # print(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
     # a = torch.randn(1, 30, 128, 256)
     # b = torch.randn(1, 30, 8, 14)
@@ -73,14 +88,14 @@ if __name__ == "__main__":
     # output, (hn, cn) = rnn(input_2)
     # print(output.shape)
 
-    # TD = DatasetWordSLC(
-    #     annotations_file=False,
-    #     annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
-    #     items_dir="data/raw/10_words_3_people/",
-    #     video_units=30,
-    #     size_list=10,
-    #     video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
-    # )
+    TD = DatasetWordSLC(
+        annotations_file=False,
+        annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
+        items_dir="data/raw/10_words_3_people/",
+        video_units=30,
+        size_list=4800,
+        video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
+    )
 
     # TD_1 = DatasetWordSLC(
     #     annotations_file=False,
@@ -90,9 +105,32 @@ if __name__ == "__main__":
     #     size_list=1000,
     #     video={"pixels": 90, "aspect_ratio": [16, 9], "color": "GRAY"},
     # )
-    # m = Unet2D(in_channels=30, channels=30, frames=30)
+    m = Unet2D(in_channels=30, channels=30, frames=30)
+    optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-6)
 
-    # DL_DS = DataLoader(TD, batch_size=1, shuffle=True, num_workers=1)
+    DL_DS = DataLoader(TD, batch_size=32, shuffle=True, num_workers=3)
+
+    lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
+        model=m, data_loader=DL_DS, optim=optim
+    )
+
+    f1, ax1 = plt.subplots(figsize=(20, 10))
+    ax1.plot(lrs, losses, label="lr")
+    ax1.plot(lrs, accuracies, label="acc")
+    ax1.set_xscale("log")
+    ax1.legend(loc="upper left")
+    ax1.grid()
+    plt.show()
+
+    # lr = [1, 2, 3, 4, 5]
+    # loss = [1, 2, 3, 4, 5]
+    # coss = [5, 4, 3, 2, 1]
+    # f1, ax1 = plt.subplots(figsize=(20, 10))
+    # ax1.plot(lr, loss)
+    # ax1.plot(lr, coss)
+    # plt.show()
+
+    # print(len(DL_DS))
     # for idx, batch in enumerate(DL_DS):
     #     train_features, train_labels = batch
     #     print(train_labels, train_features.shape)
@@ -100,7 +138,7 @@ if __name__ == "__main__":
     #     bottleneck, output = m(train_features)
     #     print(bottleneck.shape, output.shape)
 
-    # train_features, train_labels = next(iter(TD))
+    # train_features, train_labels = TD[5]
     # print(train_labels, train_features.shape)
     # bottleneck, output = m(train_features.unsqueeze(0))
     # print(bottleneck.shape, output.shape)
@@ -131,5 +169,5 @@ if __name__ == "__main__":
     # plt.show()
 
     # Fin App
-    log.info("End main program loop ...")
-    log.info("Stop App ...")
+    log.warning("End main program loop ...")
+    log.critical("Stop App ...")

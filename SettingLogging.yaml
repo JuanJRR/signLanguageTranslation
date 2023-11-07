@@ -12,9 +12,9 @@ handlers:
     level: DEBUG
     formatter: simple
 
-  consolePROD:
+  consoleTEST:
     class: logging.StreamHandler
-    level: WARNING
+    level: INFO
     formatter: extended
 
   file_handler:
@@ -28,10 +28,10 @@ loggers:
     handlers: [consoleDEV, file_handler]
     propagate: false
   TEST:
-    handlers: [file_handler, consoleDEV]
+    handlers: [file_handler, consoleTEST]
     propagate: false
   PROD:
-    handlers: [consolePROD, file_handler]
+    handlers: [file_handler]
     propagate: false
   root:
     handlers: [file_handler]

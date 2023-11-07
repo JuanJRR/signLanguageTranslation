@@ -41,5 +41,5 @@ class Logger:
             return log
         else:
             log = logging.getLogger("PROD")
-            log.setLevel(logging.WARNING)
+            log.setLevel(logging.DEBUG)
             return log
