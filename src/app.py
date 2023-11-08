@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from torch import nn
 from torch.utils.data import DataLoader
 
+from data.dataListGenc import DataListGeneratorClassifier
 from dataWrangling.datasetWordSLC import DatasetWordSLC
 from models.unet_2d.model.unet2d import Unet2D
 from models.unet_2d.optimisers.optimUnet2dSGD import OptimUnet2dSGD
@@ -42,6 +43,15 @@ if __name__ == "__main__":
 
     # Execution App
     log.warning("Starting main program loop ...")
+
+    # gen_c = DataListGeneratorClassifier(
+    #     annotations_file="/media/juan/Archivos/Proyectos/signLanguageTranslation/data/raw/10_words_3_people/000_10_words_3_people.csv"
+    # )
+    # list, index = gen_c.generator(size_list=3)
+    # gen_c.save_data_list(
+    #     df_generator=list,
+    #     save_dir="/media/juan/Archivos/Proyectos/signLanguageTranslation/data/processed/10SLC.csv",
+    # )
 
     # aa = torch.randn(32, 1, 128, 256)
     # print(aa.shape)
@@ -89,11 +99,12 @@ if __name__ == "__main__":
     # print(output.shape)
 
     TD = DatasetWordSLC(
-        annotations_file=False,
+        use_annotation_list=False,
+        ram_preload=True,
         annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
         items_dir="data/raw/10_words_3_people/",
         video_units=30,
-        size_list=4800,
+        size_list=1000,
         video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
     )
 
@@ -108,15 +119,15 @@ if __name__ == "__main__":
     m = Unet2D(in_channels=30, channels=30, frames=30)
     optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-6)
 
-    DL_DS = DataLoader(TD, batch_size=32, shuffle=True, num_workers=3)
+    DL_DS = DataLoader(TD, batch_size=8, shuffle=True)
 
     lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
-        model=m, data_loader=DL_DS, optim=optim
+        model=m, data_loader=DL_DS, optim=optim, max_lr=10, min_lr=1e-6
     )
 
     f1, ax1 = plt.subplots(figsize=(20, 10))
     ax1.plot(lrs, losses, label="lr")
-    ax1.plot(lrs, accuracies, label="acc")
+    # ax1.plot(lrs, accuracies, label="acc")
     ax1.set_xscale("log")
     ax1.legend(loc="upper left")
     ax1.grid()
@@ -132,19 +143,19 @@ if __name__ == "__main__":
 
     # print(len(DL_DS))
     # for idx, batch in enumerate(DL_DS):
+    #     print("for DL_DS: {0}".format(idx))
     #     train_features, train_labels = batch
     #     print(train_labels, train_features.shape)
 
     #     bottleneck, output = m(train_features)
     #     print(bottleneck.shape, output.shape)
 
-    # train_features, train_labels = TD[5]
     # print(train_labels, train_features.shape)
     # bottleneck, output = m(train_features.unsqueeze(0))
     # print(bottleneck.shape, output.shape)
 
     # def plot_mini_batch(imgs):
-    #     img = imgs[0]
+    #     img = imgs
     #     print(img.shape)
 
     #     plt.figure(figsize=(20, 10))
@@ -159,6 +170,10 @@ if __name__ == "__main__":
     #     plt.tight_layout()
     #     plt.show()
 
+    # for i in [0, 2, 6, 23, 304, 7]:
+    #     train_features, train_labels = TD[i]
+
+    #     plot_mini_batch(train_features)
     # plot_mini_batch(output)
     # plot_mini_batch(bottleneck)
     # for i in range(1, cols * rows + 1):

@@ -6,7 +6,7 @@ from utils.logger import Logger
 class VideoResampledDataIncrement:
     """Functional used to resample the fps rate of a video and apply data increment transformation"""
 
-    def __init__(self, video_length: int = 12) -> None:
+    def __init__(self, video_length: int = 30) -> None:
         """Builder
 
         :param video_length: New video length, defaults to 12
@@ -31,21 +31,24 @@ class VideoResampledDataIncrement:
         :rtype: np.ndarray
         """
         self.log.debug("Starting video resample ...")
-
         current_length = len(frames)
         dividing_units = int(current_length / self.video_length)
 
         count_units = 0
         new_frames = []
 
+        low = 0
+        high = dividing_units
+
         while count_units < self.video_length:
-            index = int(np.random.randint(dividing_units, size=1))
+            index = int(np.random.randint(low=low, high=high, size=1))
             new_frames.append(frames[index])
 
-            del frames[0:dividing_units]
             count_units += 1
+            low = high
+            high = high + dividing_units
 
-        del current_length, dividing_units, count_units, frames
+        del current_length, dividing_units, count_units, low, high, frames
 
         self.log.debug("Finished resample video")
         self.log.info("Resampling video completed")

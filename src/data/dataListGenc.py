@@ -33,7 +33,7 @@ class DataListGeneratorClassifier:
         del id_file, label_file
         self.log.info("Built data list generator")
 
-    def generator(self, size_list: int = 255) -> pd.DataFrame:
+    def generator(self, size_list: int = 255) -> tuple[pd.DataFrame, np.ndarray]:
         """Generates a set of random elements that satisfy a discrete distribution
         from a list of elements used as a seed
 
@@ -56,12 +56,12 @@ class DataListGeneratorClassifier:
 
         df_generator = pd.DataFrame(data_list)
 
-        del keys, list_generator, data_list
+        del list_generator, data_list
 
         self.log.debug("Completed data generator")
         self.log.info("New set of elements created")
 
-        return df_generator
+        return df_generator, keys
 
     def save_data_list(self, df_generator: pd.DataFrame, save_dir: str) -> None:
         """Saves in a Dataframe type object in a CSV extension file.
