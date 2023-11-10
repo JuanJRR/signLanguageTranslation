@@ -101,7 +101,7 @@ if __name__ == "__main__":
     TD = DatasetWordSLC(
         use_annotation_list=False,
         ram_preload=True,
-        annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
+        annotations_dir="/media/juan/Archivos/Proyectos/signLanguageTranslation/data/processed/10SLC.csv",
         items_dir="data/raw/10_words_3_people/",
         video_units=30,
         size_list=1000,

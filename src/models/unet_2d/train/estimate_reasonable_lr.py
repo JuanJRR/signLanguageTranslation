@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torch import optim
 from torch.utils.data import DataLoader
 
+from dvclive import Live
 from utils.logger import Logger
 
 
@@ -20,7 +21,7 @@ class EstimateReasonableLr:
             "cuda" if torch.cuda.is_available() else "cpu"
         ),
     ):
-        # seingen
+        # settings
         logger = Logger()
         log = logger.config_logging()
 
@@ -43,46 +44,65 @@ class EstimateReasonableLr:
         optim.param_groups[0]["lr"] = lr
         model = model.to(device=device)
 
-        for i, (features, labels) in enumerate(data_loader, start=1):
-            print("iteracion {0} de {1}".format(i, len(data_loader)))
-            x = features.to(device=device, dtype=torch.float32)
-            # y = labels.to(device=device, dtype=torch.long).squeeze(1)
+        with Live() as live:
+            params = {
+                "iterations": iterations,
+                "min_lr": min_lr,
+                "max_lr": max_lr,
+                "update_factor": update_factor,
+            }
+            live.log_params(params)
 
-            optim.zero_grad()
+            for i, (features, labels) in enumerate(data_loader, start=1):
+                print("iterations {0} de {1}".format(i, len(data_loader)))
 
-            bottleneck, output = model(x)
+                x = features.to(device=device, dtype=torch.float32)
+                # y = labels.to(device=device, dtype=torch.long).squeeze(1)
 
-            cost = F.cross_entropy(input=output, target=x)
+                optim.zero_grad()
 
-            # weighted exponential average loss
-            loss = beta * loss + (1 - beta) * cost.item()
-            average_loss = loss / (1 - beta**i)
+                bottleneck, output = model(x)
 
-            # weighted exponential average accuracy
-            preds = torch.argmax(output, dim=0)
-            acc_ = (preds == x).sum() / torch.numel(output)
-            acc = beta * acc + (1 - beta) * acc_.item()
-            average_acc = acc / (1 - beta**i)
+                cost = F.cross_entropy(input=output, target=x)
 
-            if i > 1 and average_loss > 4 * lowest_loss:
-                print(f"from here{i, cost.item()}")
-                return lrs, losses, accuracies
-            elif average_loss < lowest_loss or i == 1:
-                lowest_loss = average_loss
+                # weighted exponential average loss
+                loss = beta * loss + (1 - beta) * cost.item()
+                average_loss = loss / (1 - beta**i)
 
-            # logs
-            accuracies.append(average_acc)
-            losses.append(average_loss)
-            lrs.append(lr)
+                # weighted exponential average accuracy
+                preds = torch.argmax(output, dim=0)
+                acc_ = (preds == x).sum() / torch.numel(output)
+                acc = beta * acc + (1 - beta) * acc_.item()
+                average_acc = acc / (1 - beta**i)
 
-            # step
-            cost.backward()
-            optim.step()
+                if i > 1 and average_loss > 4 * lowest_loss:
+                    print(f"from here{i, cost.item()}")
+                    return lrs, losses, accuracies
+                elif average_loss < lowest_loss or i == 1:
+                    lowest_loss = average_loss
 
-            # update lr
-            print(f"cost:{cost.item():.4f}, lr: {lr:.6f}, acc: {acc_.item():.6f}")
-            log.debug(f"cost:{cost.item():.4f}, lr: {lr:.6f}, acc: {acc_.item():.6f}")
-            lr = lr * update_factor
-            optim.param_groups[0]["lr"] = lr
+                # logs
+                accuracies.append(average_acc)
+                losses.append(average_loss)
+                lrs.append(lr)
+
+                # experiment tracking
+                live.log_param("lr", lr)
+                live.log_metric("accuracies", average_acc)
+                live.log_metric("losses", average_loss)
+
+                # step
+                cost.backward()
+                optim.step()
+
+                # update lr
+                print(f"cost:{cost.item():.4f}, lr: {lr:.6f}, acc: {acc_.item():.6f}")
+                log.debug(
+                    f"cost:{cost.item():.4f}, lr: {lr:.6f}, acc: {acc_.item():.6f}"
+                )
+
+                lr = lr * update_factor
+                optim.param_groups[0]["lr"] = lr
+                live.next_step()
 
         return lrs, losses, accuracies
