@@ -101,10 +101,10 @@ if __name__ == "__main__":
     TD = DatasetWordSLC(
         use_annotation_list=False,
         ram_preload=True,
-        annotations_dir="/media/juan/Archivos/Proyectos/signLanguageTranslation/data/processed/10SLC.csv",
+        annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
         items_dir="data/raw/10_words_3_people/",
         video_units=30,
-        size_list=10,
+        size_list=6000,
         video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
     )
 
@@ -117,9 +117,9 @@ if __name__ == "__main__":
     #     video={"pixels": 90, "aspect_ratio": [16, 9], "color": "GRAY"},
     # )
     m = Unet2D(in_channels=30, channels=30, frames=30)
-    optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-6)
+    optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-3)
 
-    DL_DS = DataLoader(TD, batch_size=1, shuffle=True)
+    DL_DS = DataLoader(TD, batch_size=32, shuffle=True)
 
     lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
         model=m, data_loader=DL_DS, optim=optim, max_lr=10, min_lr=1e-6

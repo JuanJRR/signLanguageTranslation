@@ -1,0 +1,150 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+        "values": "<DVC_METRIC_DATA>"
+    },
+    "title": "<DVC_METRIC_TITLE>",
+    "width": 300,
+    "height": 300,
+    "params": [
+        {
+            "name": "smooth",
+            "value": 0.001,
+            "bind": {
+                "input": "range",
+                "min": 0.001,
+                "max": 1,
+                "step": 0.001
+            }
+        }
+    ],
+    "layer": [
+        {
+            "mark": "line",
+            "encoding": {
+                "x": {
+                    "field": "<DVC_METRIC_X>",
+                    "type": "quantitative",
+                    "title": "<DVC_METRIC_X_LABEL>",
+                    "scale": {
+                        "type": "log"
+                    }
+                },
+                "y": {
+                    "field": "<DVC_METRIC_Y>",
+                    "type": "quantitative",
+                    "title": "<DVC_METRIC_Y_LABEL>",
+                    "scale": {
+                        "zero": false
+                    }
+                },
+                "color": {
+                    "field": "rev",
+                    "type": "nominal"
+                },
+                "tooltip": [
+                    {
+                        "field": "<DVC_METRIC_X>",
+                        "title": "<DVC_METRIC_X_LABEL>",
+                        "type": "quantitative"
+                    },
+                    {
+                        "field": "<DVC_METRIC_Y>",
+                        "title": "<DVC_METRIC_Y_LABEL>",
+                        "type": "quantitative"
+                    }
+                ]
+            },
+            "transform": [
+                {
+                    "loess": "<DVC_METRIC_Y>",
+                    "on": "<DVC_METRIC_X>",
+                    "groupby": [
+                        "rev",
+                        "filename",
+                        "field",
+                        "filename::field"
+                    ],
+                    "bandwidth": {
+                        "signal": "smooth"
+                    }
+                }
+            ]
+        },
+        {
+            "mark": {
+                "type": "line",
+                "opacity": 0.2
+            },
+            "encoding": {
+                "x": {
+                    "field": "<DVC_METRIC_X>",
+                    "type": "quantitative",
+                    "title": "<DVC_METRIC_X_LABEL>",
+                    "scale": {
+                        "type": "log"
+                    }
+                },
+                "y": {
+                    "field": "<DVC_METRIC_Y>",
+                    "type": "quantitative",
+                    "title": "<DVC_METRIC_Y_LABEL>",
+                    "scale": {
+                        "zero": false
+                    }
+                },
+                "color": {
+                    "field": "rev",
+                    "type": "nominal"
+                },
+                "tooltip": [
+                    {
+                        "field": "<DVC_METRIC_X>",
+                        "title": "<DVC_METRIC_X_LABEL>",
+                        "type": "quantitative"
+                    },
+                    {
+                        "field": "<DVC_METRIC_Y>",
+                        "title": "<DVC_METRIC_Y_LABEL>",
+                        "type": "quantitative"
+                    }
+                ]
+            }
+        },
+        {
+            "mark": {
+                "type": "circle",
+                "size": 10,
+                "tooltip": {
+                    "content": "encoding"
+                }
+            },
+            "encoding": {
+                "x": {
+                    "aggregate": "max",
+                    "field": "<DVC_METRIC_X>",
+                    "type": "quantitative",
+                    "title": "<DVC_METRIC_X_LABEL>",
+                    "scale": {
+                        "type": "log"
+                    }
+                },
+                "y": {
+                    "aggregate": {
+                        "argmax": "<DVC_METRIC_X>"
+                    },
+                    "field": "<DVC_METRIC_Y>",
+                    "type": "quantitative",
+                    "title": "<DVC_METRIC_Y_LABEL>",
+                    "scale": {
+                        "zero": false
+                    }
+                },
+                "color": {
+                    "field": "rev",
+                    "type": "nominal"
+                }
+            }
+        }
+    ]
+}
