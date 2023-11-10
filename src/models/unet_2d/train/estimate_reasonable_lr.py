@@ -49,7 +49,7 @@ class EstimateReasonableLr:
             live.log_params(params)
 
             for i, (features, labels) in enumerate(data_loader, start=1):
-                print("iteracion {0} de {1}".format(i, len(data_loader)))
+                print("iterations {0} de {1}".format(i, len(data_loader)))
 
                 x = features.to(device=device, dtype=torch.float32)
                 # y = labels.to(device=device, dtype=torch.long).squeeze(1)
