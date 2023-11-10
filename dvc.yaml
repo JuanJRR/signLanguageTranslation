@@ -5,3 +5,11 @@ metrics:
 plots:
 - dvclive/plots/metrics:
     x: step
+- lr_vs_losses:
+        template: linear
+        x:
+            dvclive/plots/metrics/lr.tsv: lr
+        y:
+            dvclive/plots/metrics/losses.tsv: losses
+
+

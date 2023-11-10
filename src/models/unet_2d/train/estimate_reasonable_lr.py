@@ -21,7 +21,7 @@ class EstimateReasonableLr:
             "cuda" if torch.cuda.is_available() else "cpu"
         ),
     ):
-        # settings
+        # seingen
         logger = Logger()
         log = logger.config_logging()
 
@@ -45,16 +45,11 @@ class EstimateReasonableLr:
         model = model.to(device=device)
 
         with Live() as live:
-            params = {
-                "iterations": iterations,
-                "min_lr": min_lr,
-                "max_lr": max_lr,
-                "update_factor": update_factor,
-            }
+            params = {"iterations": iterations, "min_lr": min_lr, "max_lr": max_lr}
             live.log_params(params)
 
             for i, (features, labels) in enumerate(data_loader, start=1):
-                print("iterations {0} de {1}".format(i, len(data_loader)))
+                print("iteracion {0} de {1}".format(i, len(data_loader)))
 
                 x = features.to(device=device, dtype=torch.float32)
                 # y = labels.to(device=device, dtype=torch.long).squeeze(1)
@@ -86,10 +81,10 @@ class EstimateReasonableLr:
                 losses.append(average_loss)
                 lrs.append(lr)
 
-                # experiment tracking
-                live.log_param("lr", lr)
+                # rastreo
                 live.log_metric("accuracies", average_acc)
                 live.log_metric("losses", average_loss)
+                live.log_metric("lr", lr)
 
                 # step
                 cost.backward()
@@ -103,6 +98,7 @@ class EstimateReasonableLr:
 
                 lr = lr * update_factor
                 optim.param_groups[0]["lr"] = lr
+
                 live.next_step()
 
-        return lrs, losses, accuracies
+            return lrs, losses, accuracies
