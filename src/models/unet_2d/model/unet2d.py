@@ -29,18 +29,10 @@ class Unet2D(nn.Module):
         )
 
         # decoder
-        self.decoder_3 = UpConv2D(
-            in_channels=16 * in_channels, out_channels=8 * channels
-        )
-        self.decoder_2 = UpConv2D(
-            in_channels=8 * in_channels, out_channels=4 * channels
-        )
-        self.decoder_1 = UpConv2D(
-            in_channels=4 * in_channels, out_channels=2 * channels
-        )
-        self.decoder_input = UpConv2D(
-            in_channels=2 * in_channels, out_channels=channels
-        )
+        self.decoder_3 = UpConv2D(in_channels=16 * channels, out_channels=8 * channels)
+        self.decoder_2 = UpConv2D(in_channels=8 * channels, out_channels=4 * channels)
+        self.decoder_1 = UpConv2D(in_channels=4 * channels, out_channels=2 * channels)
+        self.decoder_input = UpConv2D(in_channels=2 * channels, out_channels=channels)
 
         # output
         self.last_conv2D = nn.Conv2d(
@@ -57,10 +49,10 @@ class Unet2D(nn.Module):
         x_encoder_3 = self.encoder_3(x_encoder_2)
 
         # bottleneck
-        x_bottleneck, x_upConv = self.bottleneck(x_encoder_3)
+        x_bottleneck, x_up = self.bottleneck(x_encoder_3)
 
         # decoder
-        x_decoder_3 = self.decoder_3(x_upConv, x_encoder_3)
+        x_decoder_3 = self.decoder_3(x_up, x_encoder_3)
         x_decoder_2 = self.decoder_2(x_decoder_3, x_encoder_2)
         x_decoder_1 = self.decoder_1(x_decoder_2, x_encoder_1)
         x_decoder_input = self.decoder_input(x_decoder_1, x_input)
