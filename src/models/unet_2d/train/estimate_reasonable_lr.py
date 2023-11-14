@@ -91,9 +91,9 @@ class EstimateReasonableLr:
                 optim.step()
 
                 # update lr
-                print(f"cost:{cost.item():.4f}, lr: {lr:.6f}, acc: {acc_.item():.6f}")
+                print(f"cost:{cost.item():.6f}, lr: {lr:.6f}, acc: {acc_.item():.6f}")
                 log.debug(
-                    f"cost:{cost.item():.4f}, lr: {lr:.6f}, acc: {acc_.item():.6f}"
+                    f"cost:{cost.item():.8f}, lr: {lr:.8f}, acc: {acc_.item():.8f}"
                 )
 
                 lr = lr * update_factor

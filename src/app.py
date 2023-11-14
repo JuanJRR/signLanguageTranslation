@@ -104,7 +104,7 @@ if __name__ == "__main__":
         annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
         items_dir="data/raw/10_words_3_people/",
         video_units=30,
-        size_list=6000,
+        size_list=4800,
         video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
     )
 
@@ -116,8 +116,10 @@ if __name__ == "__main__":
     #     size_list=1000,
     #     video={"pixels": 90, "aspect_ratio": [16, 9], "color": "GRAY"},
     # )
-    m = Unet2D(in_channels=30, channels=64, frames=30)
-    optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-3)
+    m = Unet2D(in_channels=30, channels=4, frames=30)
+    optim = OptimUnet2dSGD.optim_sgd_1(
+        model=m, lr=1e-3, momentum=0.95, weight_decay=1e-4
+    )
 
     DL_DS = DataLoader(TD, batch_size=32, shuffle=True)
 
@@ -154,21 +156,21 @@ if __name__ == "__main__":
     # bottleneck, output = m(train_features.unsqueeze(0))
     # print(bottleneck.shape, output.shape)
 
-    # def plot_mini_batch(imgs):
-    #     img = imgs[0]
-    #     print(img.shape)
+    def plot_mini_batch(imgs):
+        img = imgs[0]
+        print(img.shape)
 
-    #     plt.figure(figsize=(20, 10))
-    #     for i in range(img.shape[0]):
-    #         plt.subplot(5, 6, i + 1)
-    #         v_img = img[i].detach().numpy()
-    #         # mask = masks[i, ...].permute(1, 2, 0).detach().numpy()
-    #         plt.imshow(v_img)
-    #         # plt.imshow(mask, alpha=0.5)
+        plt.figure(figsize=(20, 10))
+        for i in range(img.shape[0]):
+            plt.subplot(5, 6, i + 1)
+            v_img = img[i].detach().numpy()
+            # mask = masks[i, ...].permute(1, 2, 0).detach().numpy()
+            plt.imshow(v_img)
+            # plt.imshow(mask, alpha=0.5)
 
-    #         plt.axis("Off")
-    #     plt.tight_layout()
-    #     plt.show()
+            plt.axis("Off")
+        plt.tight_layout()
+        plt.show()
 
     # for i in [0, 2, 6, 23, 304, 7]:
     #     train_features, train_labels = TD[i]
