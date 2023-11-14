@@ -101,7 +101,7 @@ if __name__ == "__main__":
     TD = DatasetWordSLC(
         use_annotation_list=False,
         ram_preload=True,
-        annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
+        annotations_dir="/media/juan/Archivos/Proyectos/signLanguageTranslation/data/processed/10SLC.csv",
         items_dir="data/raw/10_words_3_people/",
         video_units=30,
         size_list=6000,
@@ -117,21 +117,21 @@ if __name__ == "__main__":
     #     video={"pixels": 90, "aspect_ratio": [16, 9], "color": "GRAY"},
     # )
     m = Unet2D(in_channels=30, channels=30, frames=30)
-    optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-3)
+    # optim = OptimUnet2dSGD.optim_sgd_1(model=m, lr=1e-3)
 
-    DL_DS = DataLoader(TD, batch_size=32, shuffle=True)
+    # DL_DS = DataLoader(TD, batch_size=32, shuffle=True)
 
-    lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
-        model=m, data_loader=DL_DS, optim=optim, max_lr=10, min_lr=1e-6
-    )
+    # lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
+    #     model=m, data_loader=DL_DS, optim=optim, max_lr=10, min_lr=1e-6
+    # )
 
-    f1, ax1 = plt.subplots(figsize=(20, 10))
-    ax1.plot(lrs, losses, label="lr")
-    # ax1.plot(lrs, accuracies, label="acc")
-    ax1.set_xscale("log")
-    ax1.legend(loc="upper left")
-    ax1.grid()
-    plt.show()
+    # f1, ax1 = plt.subplots(figsize=(20, 10))
+    # ax1.plot(lrs, losses, label="lr")
+    # # ax1.plot(lrs, accuracies, label="acc")
+    # ax1.set_xscale("log")
+    # ax1.legend(loc="upper left")
+    # ax1.grid()
+    # plt.show()
 
     # lr = [1, 2, 3, 4, 5]
     # loss = [1, 2, 3, 4, 5]
@@ -154,28 +154,33 @@ if __name__ == "__main__":
     # bottleneck, output = m(train_features.unsqueeze(0))
     # print(bottleneck.shape, output.shape)
 
-    # def plot_mini_batch(imgs):
-    #     img = imgs
-    #     print(img.shape)
+    def plot_mini_batch(imgs):
+        img = imgs[0]
+        print(img.shape)
 
-    #     plt.figure(figsize=(20, 10))
-    #     for i in range(img.shape[0]):
-    #         plt.subplot(5, 6, i + 1)
-    #         v_img = img[i].detach().numpy()
-    #         # mask = masks[i, ...].permute(1, 2, 0).detach().numpy()
-    #         plt.imshow(v_img)
-    #         # plt.imshow(mask, alpha=0.5)
+        plt.figure(figsize=(20, 10))
+        for i in range(img.shape[0]):
+            plt.subplot(5, 6, i + 1)
+            v_img = img[i].detach().numpy()
+            # mask = masks[i, ...].permute(1, 2, 0).detach().numpy()
+            plt.imshow(v_img)
+            # plt.imshow(mask, alpha=0.5)
 
-    #         plt.axis("Off")
-    #     plt.tight_layout()
-    #     plt.show()
+            plt.axis("Off")
+        plt.tight_layout()
+        plt.show()
 
     # for i in [0, 2, 6, 23, 304, 7]:
     #     train_features, train_labels = TD[i]
 
     #     plot_mini_batch(train_features)
-    # plot_mini_batch(output)
-    # plot_mini_batch(bottleneck)
+    train_features, train_labels = TD[0]
+    bottleneck, output = m(train_features.unsqueeze(0))
+    plot_mini_batch(output)
+    plot_mini_batch(bottleneck)
+    # cols = 6
+    # rows = 5
+    # figure, ax1 = plt.subplots(figsize=(20, 10))
     # for i in range(1, cols * rows + 1):
     #     figure.add_subplot(rows, cols, i)
     #     plt.axis("off")

@@ -12,15 +12,13 @@ class UpConv2D(nn.Module):
             nn.Upsample(scale_factor=2, mode="bicubic"),
             nn.Conv2d(
                 in_channels=in_channels,
-                out_channels=in_channels,
+                out_channels=in_channels // 2,
                 kernel_size=1,
                 stride=1,
             ),
         )
 
-        self.decoder = DoubleConv2D(
-            in_channels=in_channels * 2, out_channels=out_channels
-        )
+        self.decoder = DoubleConv2D(in_channels=in_channels, out_channels=out_channels)
 
     def forward(self, x1, x2):
         # print(x1.shape, x2.shape)
