@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # print(output.shape)
 
     TD = DatasetWordSLC(
-        use_annotation_list=True,
+        use_annotation_list=False,
         ram_preload=True,
         annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
         items_dir="data/raw/10_words_3_people/",
