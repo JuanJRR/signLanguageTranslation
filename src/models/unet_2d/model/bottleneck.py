@@ -27,9 +27,4 @@ class Bottleneck(nn.Module):
         x_bottleneck = self.bottleneck(x_down)
         x_up = self.conv_bottleneck_up(x_bottleneck)
 
-        print(x.shape)
-        print(x_down.shape)
-        print(x_bottleneck.shape)
-        print(x_up.shape)
-
         return x_bottleneck, x_up
