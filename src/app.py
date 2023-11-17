@@ -12,6 +12,7 @@ from dataWrangling.datasetWordSLC import DatasetWordSLC
 from models.unet_2d.model.unet2d import Unet2D
 from models.unet_2d.optimisers.optimUnet2dSGD import OptimUnet2dSGD
 from models.unet_2d.train.estimate_reasonable_lr import EstimateReasonableLr
+from models.unet_2d.train.train_model import TrainModel
 from utils.logger import Logger
 
 if __name__ == "__main__":
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     log.info("Settings:Seed")
 
     if seed_use == "TRUE":
-        seed = 1
+        seed = 1117
         np.random.seed(seed)
         torch.manual_seed(seed)
         log.info("Defined seed: {}".format(seed))
@@ -55,6 +56,19 @@ if __name__ == "__main__":
 
     # aa = torch.randn(32, 1, 128, 256)
     # print(aa.shape)
+
+    # a_one_x = torch.randn(1, 30, 256, 256)
+    # a_one_y = torch.randn(1, 30, 256, 256)
+
+    # print(a_one_x.shape, a_one_y.shape)
+    # print(a_one_x)
+
+    # predict = torch.argmax(a_one_x, dim=1)
+    # print(predict)
+
+    # train_correct_num = (a_one_x == a_one_x).sum()
+    # print(train_correct_num)
+
     # a_max_0 = torch.argmax(aa, dim=1)
     # print(a_max_0.shape)
 
@@ -98,15 +112,15 @@ if __name__ == "__main__":
     # output, (hn, cn) = rnn(input_2)
     # print(output.shape)
 
-    TD = DatasetWordSLC(
-        use_annotation_list=False,
-        ram_preload=True,
-        annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
-        items_dir="data/raw/10_words_3_people/",
-        video_units=30,
-        size_list=4800,
-        video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
-    )
+    # TD = DatasetWordSLC(
+    #     use_annotation_list=False,
+    #     ram_preload=True,
+    #     annotations_dir="data/raw/10_words_3_people/000_10_words_3_people.csv",
+    #     items_dir="data/raw/10_words_3_people/",
+    #     video_units=30,
+    #     size_list=4800,
+    #     video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
+    # )
 
     # TD_1 = DatasetWordSLC(
     #     annotations_file=False,
@@ -116,16 +130,62 @@ if __name__ == "__main__":
     #     size_list=1000,
     #     video={"pixels": 90, "aspect_ratio": [16, 9], "color": "GRAY"},
     # )
-    m = Unet2D(in_channels=30, channels=4, frames=30)
-    optim = OptimUnet2dSGD.optim_sgd_1(
-        model=m, lr=1e-3, momentum=0.95, weight_decay=1e-4
+
+    epochs = 5
+    batch = 16
+    path_save = "models/unet"
+
+    TD_train = DatasetWordSLC(
+        use_annotation_list=False,
+        ram_preload=True,
+        annotations_dir="data/processed/10SLC.csv",
+        items_dir="data/raw/10_words_3_people/",
+        video_units=30,
+        size_list=4800,
+        video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
+    )
+    TD_validation = DatasetWordSLC(
+        use_annotation_list=False,
+        ram_preload=True,
+        annotations_dir="data/processed/10SLC.csv",
+        items_dir="data/raw/10_words_3_people/",
+        video_units=30,
+        size_list=1200,
+        video={"pixels": 128, "aspect_ratio": [16, 9], "color": "GRAY"},
     )
 
-    DL_DS = DataLoader(TD, batch_size=32, shuffle=True)
-
-    lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
-        model=m, data_loader=DL_DS, optim=optim, max_lr=10, min_lr=1e-6
+    u_net = Unet2D(in_channels=30, channels=32, frames=30)
+    optimizer_unet = OptimUnet2dSGD.optim_adam(model=u_net, lr=0.01, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer_unet,
+        max_lr=1e-1,
+        steps_per_epoch=300,
+        epochs=epochs,
+        pct_start=0.43,
+        div_factor=10,
+        final_div_factor=1000,
+        three_phase=True,
     )
+
+    train_unet = TrainModel(
+        model=u_net,
+        optimizer=optimizer_unet,
+        scheduler=scheduler,
+        data_train=TD_train,
+        data_validation=TD_validation,
+        path_save=path_save,
+        batch_size=batch,
+        epochs=epochs,
+        iterations_report=32,
+    )
+
+    model_train_unet = train_unet.train()
+
+    # DL_DS = DataLoader(TD, batch_size=32, shuffle=True)
+
+    # lrs, losses, accuracies = EstimateReasonableLr.estimate_lr(
+    #     model=m, data_loader=DL_DS, optim=optim, max_lr=10, min_lr=1e-6
+    # )
 
     # f1, ax1 = plt.subplots(figsize=(20, 10))
     # ax1.plot(lrs, losses, label="lr")
@@ -177,12 +237,18 @@ if __name__ == "__main__":
 
     #     plot_mini_batch(train_features)
 
-    # train_features, train_labels = TD[1]
-    # bottleneck, output = m(train_features.unsqueeze(0))
-    # print(train_labels)
-    # print(bottleneck.shape, output.shape)
-    # plot_mini_batch(output)
-    # plot_mini_batch(bottleneck)
+    # u_net.load_state_dict(torch.load("models/unet/model.pt"))
+    # u_net.eval()
+
+    # bottleneck, output = model_train_unet(train_features.unsqueeze(0))
+    # for i in [0, 5, 10, 12, 30, 21, 34, 50, 60]:
+    #     train_features, train_labels = TD_validation[i]
+    #     bottleneck, output = u_net(train_features.unsqueeze(0))
+    #     print(train_labels)
+    #     # print(bottleneck.shape, output.shape)
+    #     plot_mini_batch(output)
+    #     plot_mini_batch(bottleneck)
+    # plot_mini_batch(train_features)
     # cols = 6
     # rows = 5
     # figure, ax1 = plt.subplots(figsize=(20, 10))

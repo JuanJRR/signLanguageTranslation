@@ -1,7 +1,9 @@
 params:
 - dvclive/params.yaml
+- ../../dvclive/params.yaml
 metrics:
 - dvclive/metrics.json
+- ../../dvclive/metrics.json
 plots:
 - lr_vs_losses:
     template: linear_log.json
@@ -16,4 +18,6 @@ plots:
     y:
       dvclive/plots/metrics/accuracies.tsv: accuracies
 - dvclive/plots/metrics:
+    x: step
+- ../../dvclive/plots/metrics:
     x: step
