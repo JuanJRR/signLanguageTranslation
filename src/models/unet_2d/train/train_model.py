@@ -167,32 +167,34 @@ class TrainModel:
                     print(f"train_acc: {train_acc:.8f} -- val acc: {val_acc:.8f}")
                     print(f"dice: {dice}, iou: {iou}")
 
-                # checkpoints
-                torch.save(
-                    obj={
-                        "epoch": epoch,
-                        "model_state_dict": model.state_dict(),
-                        "optimizer_state_dict": self.optimizer.state_dict(),
-                        "val_loss": val_loss,
-                        "train_loss": train_loss,
-                    },
-                    f=path_checkpoints,
-                )
+                torch.save(obj=model.state_dict(), f=path_model)
 
-                if val_acc > best_acc:
-                    best_acc = val_acc
-                    count_early_stop_thresh = 0
+                # # checkpoints
+                # torch.save(
+                #     obj={
+                #         "epoch": epoch,
+                #         "model_state_dict": model.state_dict(),
+                #         "optimizer_state_dict": self.optimizer.state_dict(),
+                #         "val_loss": val_loss,
+                #         "train_loss": train_loss,
+                #     },
+                #     f=path_checkpoints,
+                # )
 
-                    torch.save(
-                        obj=model.state_dict(),
-                        f=path_model,
-                    )
-                    print("save model")
-                else:
-                    count_early_stop_thresh += 1
+                # if val_acc > best_acc:
+                #     best_acc = val_acc
+                #     count_early_stop_thresh = 0
 
-                if count_early_stop_thresh > self.early_stop_thresh:
-                    break
+                #     torch.save(
+                #         obj=model.state_dict(),
+                #         f=path_model,
+                #     )
+                #     print("save model")
+                # else:
+                #     count_early_stop_thresh += 1
+
+                # if count_early_stop_thresh > self.early_stop_thresh:
+                #     break
 
                 # tracking
                 # live.log_artifact(path_checkpoints)

@@ -22,10 +22,14 @@ class Unet2D(nn.Module):
         self.encoder_3 = DownConv2D(in_channels=4 * channels, out_channels=8 * channels)
 
         # bottleneck
-        self.bottleneck = Bottleneck(
-            in_channels=8 * channels,
-            out_channels=16 * channels,
-            channels_bottleneck=frames,
+        # self.bottleneck = Bottleneck(
+        #     in_channels=8 * channels,
+        #     out_channels=16 * channels,
+        #     channels_bottleneck=frames,
+        # )
+
+        self.bottleneck = DownConv2D(
+            in_channels=8 * channels, out_channels=16 * channels
         )
 
         # decoder
@@ -49,10 +53,10 @@ class Unet2D(nn.Module):
         x_encoder_3 = self.encoder_3(x_encoder_2)
 
         # bottleneck
-        x_bottleneck, x_up = self.bottleneck(x_encoder_3)
+        x_bottleneck = self.bottleneck(x_encoder_3)
 
         # decoder
-        x_decoder_3 = self.decoder_3(x_up, x_encoder_3)
+        x_decoder_3 = self.decoder_3(x_bottleneck, x_encoder_3)
         x_decoder_2 = self.decoder_2(x_decoder_3, x_encoder_2)
         x_decoder_1 = self.decoder_1(x_decoder_2, x_encoder_1)
         x_decoder_input = self.decoder_input(x_decoder_1, x_input)

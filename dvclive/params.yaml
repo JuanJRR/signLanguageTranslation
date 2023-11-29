@@ -1,11 +1,7 @@
 metrics:
 - loss
 - accuracy
-- dice
-- iou
 training:
-  epochs: 5
-  batch_size: 16
   optimizer:
     state: {}
     param_groups:
@@ -14,7 +10,7 @@ training:
       - 0.95
       - 0.999
       eps: 1e-08
-      weight_decay: 0.0001
+      weight_decay: 0.95
       amsgrad: false
       maximize: false
       foreach:
@@ -109,7 +105,8 @@ training:
       - 79
       - 80
       - 81
-      - 82
-      - 83
-      - 84
-      - 85
+  model_dimensions:
+    in_channels: 3
+    out_channels: 2
+    channels: 4
+epochs: 4
